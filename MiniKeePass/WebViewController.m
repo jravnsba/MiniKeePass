@@ -31,14 +31,16 @@
     _webView.keyboardDisplayRequiresUserAction = NO;
 	[self.view addSubview:_webView];
 
-    _backButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemReply
-                                                                target:self
-                                                                action:@selector(backPressed)];
+    _backButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"back"]
+                                                   style:UIBarButtonItemStylePlain
+                                                  target:self
+                                                  action:@selector(backPressed)];
     _backButton.enabled = NO;
 
-    _forwardButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemPlay
-                                                                   target:self
-                                                                   action:@selector(forwardPressed)];
+    _forwardButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"forward"]
+                                                      style:UIBarButtonItemStylePlain
+                                                     target:self
+                                                     action:@selector(forwardPressed)];
     _forwardButton.enabled = NO;
 
     _reloadButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh
@@ -49,28 +51,42 @@
                                                                   target:self
                                                                   action:@selector(openInPressed)];
 
-    UIBarButtonItem *spacer = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
-                                                                             target:nil
-                                                                             action:nil] autorelease];
+    UIBarButtonItem *fixedSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
+    fixedSpace.width = 10.0f;
 
-    self.toolbarItems = @[_backButton, spacer, _forwardButton, spacer, _reloadButton, spacer, _openInButton];
+    UIBarButtonItem *flexibleSpace = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
+                                                                                    target:nil
+                                                                                    action:nil] autorelease];
 
+    self.toolbarItems = @[
+                          fixedSpace,
+                          _backButton,
+                          flexibleSpace,
+                          _forwardButton,
+                          flexibleSpace,
+                          _reloadButton,
+                          flexibleSpace,
+                          _openInButton,
+                          fixedSpace
+                          ];
 
-    _autotypeUsernameButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction
-                                                                            target:self
-                                                                            action:@selector(autotypeUsernamePressed)];
-
-    _autotypePasswordButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction
-                                                                            target:self
-                                                                            action:@selector(autotypePasswordPressed)];
-
-    self.navigationItem.rightBarButtonItems = @[_autotypeUsernameButton, _autotypePasswordButton];
+    UISegmentedControl *segmentedControl = [[[UISegmentedControl alloc] initWithItems:@[@"User", @"Pass"]] autorelease];
+    segmentedControl.segmentedControlStyle = UISegmentedControlStyleBar;
+    segmentedControl.momentary = YES;
+    [segmentedControl addTarget:self
+                         action:@selector(autotypePressed:)
+               forControlEvents:UIControlEventValueChanged];
+    UIBarButtonItem *autotypeButton = [[[UIBarButtonItem alloc] initWithCustomView:segmentedControl] autorelease];
+    self.navigationItem.rightBarButtonItem = autotypeButton;
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
 
     NSURL *url = [NSURL URLWithString:self.entry.url];
+    if (url.scheme == nil) {
+        url = [NSURL URLWithString:[@"http://" stringByAppendingString:self.entry.url]];
+    }
 
     _webView.frame = self.view.bounds;
     [_webView loadRequest:[NSURLRequest requestWithURL:url]];
@@ -89,6 +105,7 @@
 - (void)updateButtons {
     _backButton.enabled = _webView.canGoBack;
     _forwardButton.enabled = _webView.canGoForward;
+    _openInButton.enabled = !_webView.isLoading;
 }
 
 - (void)backPressed {
@@ -116,12 +133,19 @@
     [_webView stringByEvaluatingJavaScriptFromString:script];
 }
 
-- (void)autotypeUsernamePressed {
-    [self autotypeString:self.entry.username];
-}
+- (void)autotypePressed:(UISegmentedControl *)segmentedControl {
+    switch (segmentedControl.selectedSegmentIndex) {
+        case 0:
+            [self autotypeString:self.entry.username];
+            break;
 
-- (void)autotypePasswordPressed {
-    [self autotypeString:self.entry.password];
+        case 1:
+            [self autotypeString:self.entry.password];
+            break;
+
+        default:
+            break;
+    }
 }
 
 #pragma mark - WebView delegate methods
