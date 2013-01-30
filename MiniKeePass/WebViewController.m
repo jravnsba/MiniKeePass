@@ -258,7 +258,10 @@
 }
 
 - (void)autotypeString:(NSString *)string {
-    NSString *script = [NSString stringWithFormat:@"if (document.activeElement) { document.activeElement.value = '%@'; }", string];
+    // Escape single quotes
+    NSString *escapedString = [string stringByReplacingOccurrencesOfString:@"\'" withString:@"\\'"];
+
+    NSString *script = [NSString stringWithFormat:@"if (document.activeElement) { document.activeElement.value = '%@'; }", escapedString];
     [_webView stringByEvaluatingJavaScriptFromString:script];
 }
 
