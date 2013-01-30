@@ -16,6 +16,7 @@
  */
 
 #import "PasswordFieldCell.h"
+#import "EntryViewController.h"
 #import "AppSettings.h"
 
 @implementation PasswordFieldCell
@@ -40,6 +41,8 @@
 
         self.accessoryView = self.accessoryButton;
         self.editingAccessoryView = self.editAccessoryButton;
+
+        [self.menuItems addObject:[[[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"Show", nil) action:@selector(showPassword:)] autorelease]];
     }
     return self;
 }
@@ -59,6 +62,17 @@
     
     self.textField.secureTextEntry = [[AppSettings sharedInstance] hidePasswords];
     self.textField.returnKeyType = UIReturnKeyDone;
+}
+
+- (BOOL)canPerformAction:(SEL)action withSender:(id)sender {
+    return [super canPerformAction:action withSender:sender] || action == @selector(showPassword:);
+}
+
+- (void)showPassword:(id)sender {
+    if ([self.superview.nextResponder isKindOfClass:EntryViewController.class]) {
+        EntryViewController *viewController = (EntryViewController *)self.superview.nextResponder;
+        [viewController showPasswordPressed];
+    }
 }
 
 @end

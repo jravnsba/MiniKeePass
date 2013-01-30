@@ -31,6 +31,9 @@
 
 @interface EntryViewController : AutorotatingTableViewController <UIGestureRecognizerDelegate, ImageSelectionViewDelegate, TextFieldCellDelegate, PasswordGeneratorDelegate, StringFieldViewDelegate>
 
+- (void)showPasswordPressed;
+- (void)openUrlPressed;
+
 @property (nonatomic, assign) NSUInteger selectedImageIndex;
 @property (nonatomic, retain) KdbEntry *entry;
 @property (nonatomic) BOOL isNewEntry;

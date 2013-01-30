@@ -29,11 +29,10 @@
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
     self = [super initWithStyle:UITableViewCellStyleValue2 reuseIdentifier:reuseIdentifier];
     if (self) {
-        
         CGRect frame = self.contentView.frame;
         frame.origin.x = INSET;
         frame.size.width -= INSET;
-        
+
         _textField = [[UITextField alloc] initWithFrame:frame];
         _textField.delegate = self;
         _textField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
@@ -44,7 +43,7 @@
         _textField.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
         _textField.font = [UIFont boldSystemFontOfSize:15];
         _textField.textColor = [UIColor blackColor];
-        
+
         [self.contentView addSubview:self.textField];
 
         CGFloat grayIntensity = 202.0 / 255.0;
@@ -54,6 +53,11 @@
         _grayBar.backgroundColor = color;
         _grayBar.hidden = YES;
         [self.contentView addSubview:_grayBar];
+
+        [self addGestureRecognizer:[[[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPress:)] autorelease]];
+
+        _menuItems = [[NSMutableArray alloc] initWithCapacity:3];
+        [_menuItems addObject:[[[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"Edit", nil) action:@selector(edit:)] autorelease]];
     }
     return self;
 }
@@ -61,6 +65,7 @@
 - (void)dealloc {
     [_textField release];
     [_grayBar release];
+    [_menuItems release];
     _textFieldCellDelegate = nil;
     
     [_accessoryButton release];
@@ -110,6 +115,39 @@
     }
     
     return NO;
+}
+
+- (void)longPress:(UIGestureRecognizer *)sender {
+    if (sender.state == UIGestureRecognizerStateBegan) {
+        [self becomeFirstResponder];
+        CGRect rect = CGRectInset(self.bounds, 0, 15.0f);
+
+        UIMenuController *menuController = [UIMenuController sharedMenuController];
+        menuController.menuItems = self.menuItems;
+        [menuController setTargetRect:rect inView:self];
+        [menuController setMenuVisible:YES animated:YES];
+    }
+}
+
+- (BOOL)canPerformAction:(SEL)action withSender:(id)sender {
+    return action == @selector(copy:) || action == @selector(edit:);
+}
+
+- (void)copy:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = self.textField.text;
+}
+
+- (void)edit:(id)sender {
+    if ([self.superview.nextResponder isKindOfClass:UIViewController.class]) {
+        UITableViewController *viewController = (UITableViewController *)self.superview.nextResponder;
+        [viewController setEditing:YES animated:YES];
+        [self.textField becomeFirstResponder];
+    }
+}
+
+- (BOOL)canBecomeFirstResponder {
+    return YES;
 }
 
 @end

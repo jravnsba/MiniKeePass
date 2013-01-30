@@ -12,14 +12,52 @@
 #define kUrlFieldLandHeight 24.0f
 #define UrlFieldHeight(orientation) (UIInterfaceOrientationIsPortrait(orientation) ? kUrlFieldPortHeight : kUrlFieldLandHeight)
 
-@interface WebViewController () <UIWebViewDelegate, UITextFieldDelegate> {
+@protocol MKPWebViewDelegate;
+
+@interface MKPWebView : UIWebView
+@property (nonatomic, assign)id<MKPWebViewDelegate> mkpDelegate;
+@end
+
+@protocol MKPWebViewDelegate <NSObject>
+- (void)usernamePressed:(MKPWebView *)webview;
+- (void)passwordPressed:(MKPWebView *)webview;
+@end
+
+@implementation MKPWebView
+
+- (id)init {
+    self = [super init];
+    if (self) {
+        UIMenuItem *username = [[[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"Username", nil) action:@selector(pasteUsername:)] autorelease];
+        UIMenuItem *password = [[[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"Password", nil) action:@selector(pastePassword:)] autorelease];
+
+        UIMenuController *menuController = [UIMenuController sharedMenuController];
+        menuController.menuItems = @[username, password];
+    }
+    return self;
+}
+
+- (BOOL)canPerformAction:(SEL)action withSender:(id)sender {
+    return [super canPerformAction:action withSender:sender] || action == @selector(pasteUsername:) || action == @selector(pastePassword:);
+}
+
+- (void)pasteUsername:(id)sender {
+    [self.mkpDelegate usernamePressed:self];
+}
+
+- (void)pastePassword:(id)sender {
+    [self.mkpDelegate passwordPressed:self];
+}
+
+@end
+
+@interface WebViewController () <UIWebViewDelegate, UITextFieldDelegate, MKPWebViewDelegate> {
     UITextField *_urlTextField;
     CGRect _originalUrlFrame;
 
     UIBarButtonItem *_autotypeButton;
 
-    UIWebView *_webView;
-
+    MKPWebView *_webView;
     UIBarButtonItem *_backButton;
     UIBarButtonItem *_forwardButton;
     UIBarButtonItem *_reloadButton;
@@ -58,11 +96,12 @@
     self.navigationItem.rightBarButtonItem = _autotypeButton;
 
     // Create the web view
-    _webView = [[UIWebView alloc] init];
+    _webView = [[MKPWebView alloc] init];
     _webView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
 	_webView.backgroundColor = [UIColor whiteColor];
     _webView.scalesPageToFit = YES;
 	_webView.delegate = self;
+    _webView.mkpDelegate = self;
     _webView.keyboardDisplayRequiresUserAction = NO;
 	[self.view addSubview:_webView];
 
@@ -236,6 +275,14 @@
         default:
             break;
     }
+}
+
+- (void)usernamePressed:(MKPWebView *)webview {
+    [self autotypeString:self.entry.username];
+}
+
+- (void)passwordPressed:(MKPWebView *)webview {
+    [self autotypeString:self.entry.password];
 }
 
 #pragma mark - WebView delegate methods

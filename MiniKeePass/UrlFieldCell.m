@@ -16,6 +16,7 @@
  */
 
 #import "UrlFieldCell.h"
+#import "EntryViewController.h"
 
 @implementation UrlFieldCell
 
@@ -33,8 +34,21 @@
         [self.accessoryButton setImage:[UIImage imageNamed:@"arrow"] forState:UIControlStateNormal];
         
         self.accessoryView = self.accessoryButton;
+
+        [self.menuItems addObject:[[[UIMenuItem alloc] initWithTitle:NSLocalizedString(@"Open", nil) action:@selector(openInBrowser:)] autorelease]];
     }
     return self;
+}
+
+- (BOOL)canPerformAction:(SEL)action withSender:(id)sender {
+    return [super canPerformAction:action withSender:sender] || action == @selector(openInBrowser:);
+}
+
+- (void)openInBrowser:(id)sender {
+    if ([self.superview.nextResponder isKindOfClass:EntryViewController.class]) {
+        EntryViewController *viewController = (EntryViewController *)self.superview.nextResponder;
+        [viewController openUrlPressed];
+    }
 }
 
 @end

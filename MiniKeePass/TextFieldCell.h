@@ -31,6 +31,8 @@
 
 @property (nonatomic, assign) BOOL showGrayBar;
 
+@property (nonatomic, retain) NSMutableArray *menuItems;
+
 @end
 
 @protocol TextFieldCellDelegate <NSObject>
