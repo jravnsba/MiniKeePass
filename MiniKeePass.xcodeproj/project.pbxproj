@@ -270,6 +270,10 @@
 		689DFFDC13A4273F005EBD36 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 689DFFDB13A4273F005EBD36 /* Foundation.framework */; };
 		689DFFDE13A4273F005EBD36 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 689DFFDD13A4273F005EBD36 /* CoreGraphics.framework */; };
 		689DFFE713A4273F005EBD36 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 689DFFE613A4273F005EBD36 /* main.m */; };
+		68A066E816BA2DCE00DFD574 /* password@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 68A066E616BA2DA900DFD574 /* password@2x.png */; };
+		68A066E916BA2DCE00DFD574 /* username@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 68A066E716BA2DBC00DFD574 /* username@2x.png */; };
+		68A066EC16BA320200DFD574 /* password.png in Resources */ = {isa = PBXBuildFile; fileRef = 68A066EB16BA31F400DFD574 /* password.png */; };
+		68A066EE16BA364F00DFD574 /* username.png in Resources */ = {isa = PBXBuildFile; fileRef = 68A066ED16BA364200DFD574 /* username.png */; };
 		68A3E1AF13A8C9D1006881CA /* FormViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 68A3E1AE13A8C9D1006881CA /* FormViewController.m */; };
 		68A7247416B8CC4700214C9C /* back.png in Resources */ = {isa = PBXBuildFile; fileRef = 68A7247016B8CC4700214C9C /* back.png */; };
 		68A7247516B8CC4700214C9C /* back@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 68A7247116B8CC4700214C9C /* back@2x.png */; };
@@ -689,6 +693,10 @@
 		689DFFE113A4273F005EBD36 /* MiniKeePass-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MiniKeePass-Info.plist"; sourceTree = "<group>"; };
 		689DFFE513A4273F005EBD36 /* MiniKeePass-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MiniKeePass-Prefix.pch"; sourceTree = "<group>"; };
 		689DFFE613A4273F005EBD36 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		68A066E616BA2DA900DFD574 /* password@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "password@2x.png"; sourceTree = "<group>"; };
+		68A066E716BA2DBC00DFD574 /* username@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "username@2x.png"; sourceTree = "<group>"; };
+		68A066EB16BA31F400DFD574 /* password.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = password.png; sourceTree = "<group>"; };
+		68A066ED16BA364200DFD574 /* username.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = username.png; sourceTree = "<group>"; };
 		68A3E1AD13A8C9D1006881CA /* FormViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FormViewController.h; sourceTree = "<group>"; };
 		68A3E1AE13A8C9D1006881CA /* FormViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FormViewController.m; sourceTree = "<group>"; };
 		68A7247016B8CC4700214C9C /* back.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = back.png; sourceTree = "<group>"; };
@@ -840,6 +848,10 @@
 		689D021A13A42B63005EBD36 /* images */ = {
 			isa = PBXGroup;
 			children = (
+				68A066EB16BA31F400DFD574 /* password.png */,
+				68A066E616BA2DA900DFD574 /* password@2x.png */,
+				68A066ED16BA364200DFD574 /* username.png */,
+				68A066E716BA2DBC00DFD574 /* username@2x.png */,
 				689D021B13A42B63005EBD36 /* 0.png */,
 				689D021C13A42B63005EBD36 /* 0@2x.png */,
 				689D021D13A42B63005EBD36 /* 1.png */,
@@ -1584,6 +1596,10 @@
 				68A7247516B8CC4700214C9C /* back@2x.png in Resources */,
 				68A7247616B8CC4700214C9C /* forward.png in Resources */,
 				68A7247716B8CC4700214C9C /* forward@2x.png in Resources */,
+				68A066E816BA2DCE00DFD574 /* password@2x.png in Resources */,
+				68A066E916BA2DCE00DFD574 /* username@2x.png in Resources */,
+				68A066EC16BA320200DFD574 /* password.png in Resources */,
+				68A066EE16BA364F00DFD574 /* username.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

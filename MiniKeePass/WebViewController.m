@@ -70,7 +70,8 @@
                           fixedSpace
                           ];
 
-    UISegmentedControl *segmentedControl = [[[UISegmentedControl alloc] initWithItems:@[@"User", @"Pass"]] autorelease];
+    NSArray *items = @[[UIImage imageNamed:@"username"], [UIImage imageNamed:@"password"]];
+    UISegmentedControl *segmentedControl = [[[UISegmentedControl alloc] initWithItems:items] autorelease];
     segmentedControl.segmentedControlStyle = UISegmentedControlStyleBar;
     segmentedControl.momentary = YES;
     [segmentedControl addTarget:self
