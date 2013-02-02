@@ -8,22 +8,53 @@
 
 #import "WebViewController.h"
 
-@interface WebViewController () <UIWebViewDelegate> {
+#define kUrlFieldHeight   30.0f
+
+@interface WebViewController () <UIWebViewDelegate, UITextFieldDelegate> {
+    UITextField *_urlTextField;
+    CGRect _originalUrlFrame;
+
+    UIBarButtonItem *_autotypeButton;
+
     UIWebView *_webView;
+
     UIBarButtonItem *_backButton;
     UIBarButtonItem *_forwardButton;
     UIBarButtonItem *_reloadButton;
     UIBarButtonItem *_openInButton;
-    UIBarButtonItem *_autotypeUsernameButton;
-    UIBarButtonItem *_autotypePasswordButton;
 }
 @end
 
 @implementation WebViewController
 
 - (void)viewDidLoad {
-    self.title = @"Web";
+    // Create the URL text field
+    _urlTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, self.navigationController.navigationBar.bounds.size.width, kUrlFieldHeight)];
+    _urlTextField.contentVerticalAlignment = UIViewContentModeCenter;
+    _urlTextField.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+    _urlTextField.borderStyle = UITextBorderStyleRoundedRect;
+    _urlTextField.font = [UIFont systemFontOfSize:14.0f];
+    _urlTextField.clearButtonMode = UITextFieldViewModeWhileEditing;
+    _urlTextField.autocapitalizationType = UITextAutocapitalizationTypeNone;
+    _urlTextField.autocorrectionType = UITextAutocorrectionTypeNo;
+    _urlTextField.keyboardType = UIKeyboardTypeURL;
+    _urlTextField.returnKeyType = UIReturnKeyGo;
+    [_urlTextField addTarget:self action:@selector(textFieldEditingDidEnd:) forControlEvents:UIControlEventEditingDidEndOnExit];
+    _urlTextField.delegate = self;
+    self.navigationItem.titleView = _urlTextField;
 
+    // Create the autotype buttons
+    NSArray *items = @[[UIImage imageNamed:@"username"], [UIImage imageNamed:@"password"]];
+    UISegmentedControl *segmentedControl = [[[UISegmentedControl alloc] initWithItems:items] autorelease];
+    segmentedControl.segmentedControlStyle = UISegmentedControlStyleBar;
+    segmentedControl.momentary = YES;
+    [segmentedControl addTarget:self
+                         action:@selector(autotypePressed:)
+               forControlEvents:UIControlEventValueChanged];
+    _autotypeButton = [[UIBarButtonItem alloc] initWithCustomView:segmentedControl];
+    self.navigationItem.rightBarButtonItem = _autotypeButton;
+
+    // Create the web view
     _webView = [[UIWebView alloc] init];
     _webView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
 	_webView.backgroundColor = [UIColor whiteColor];
@@ -31,6 +62,7 @@
     _webView.keyboardDisplayRequiresUserAction = NO;
 	[self.view addSubview:_webView];
 
+    // Create the toolbar button
     _backButton = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"back"]
                                                    style:UIBarButtonItemStylePlain
                                                   target:self
@@ -69,16 +101,6 @@
                           _openInButton,
                           fixedSpace
                           ];
-
-    NSArray *items = @[[UIImage imageNamed:@"username"], [UIImage imageNamed:@"password"]];
-    UISegmentedControl *segmentedControl = [[[UISegmentedControl alloc] initWithItems:items] autorelease];
-    segmentedControl.segmentedControlStyle = UISegmentedControlStyleBar;
-    segmentedControl.momentary = YES;
-    [segmentedControl addTarget:self
-                         action:@selector(autotypePressed:)
-               forControlEvents:UIControlEventValueChanged];
-    UIBarButtonItem *autotypeButton = [[[UIBarButtonItem alloc] initWithCustomView:segmentedControl] autorelease];
-    self.navigationItem.rightBarButtonItem = autotypeButton;
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -89,12 +111,16 @@
         url = [NSURL URLWithString:[@"http://" stringByAppendingString:self.entry.url]];
     }
 
+    _urlTextField.text = [url absoluteString];
+
     _webView.frame = self.view.bounds;
     [_webView loadRequest:[NSURLRequest requestWithURL:url]];
 }
 
 - (void)dealloc {
     [_entry release];
+    [_urlTextField release];
+    [_autotypeButton release];
     [_webView release];
     [_backButton release];
     [_forwardButton release];
@@ -102,6 +128,52 @@
     [_openInButton release];
     [super dealloc];
 }
+
+#pragma mark - URL Text Field
+
+- (void)textFieldEditingDidEnd:(id)sender {
+    NSURL *url = [NSURL URLWithString:_urlTextField.text];
+    if (url.scheme == nil) {
+        url = [NSURL URLWithString:[@"http://" stringByAppendingString:_urlTextField.text]];
+        _urlTextField.text = [url absoluteString];
+    }
+
+    [_webView loadRequest:[NSURLRequest requestWithURL:url]];
+}
+
+- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField {
+    // Save the original size of the url text field
+    _originalUrlFrame = _urlTextField.frame;
+
+    // Compute a new frame size
+    CGRect frame = CGRectMake(0, 0, self.navigationController.navigationBar.bounds.size.width, kUrlFieldHeight);
+
+    // Hide the buttons
+    self.navigationItem.hidesBackButton = YES;
+    self.navigationItem.rightBarButtonItem = nil;
+
+    // Animate the size of the url text field
+    [UIView animateWithDuration:0.5 animations:^{
+        _urlTextField.frame = frame;
+    }];
+
+    return YES;
+}
+
+- (BOOL)textFieldShouldEndEditing:(UITextField *)textField {
+    [UIView animateWithDuration:0.5 animations:^{
+        // Restore the url text fields frame
+        _urlTextField.frame = _originalUrlFrame;
+    } completion:^(BOOL finished) {
+        // Show the buttons
+        [self.navigationItem setHidesBackButton:NO animated:YES];
+        [self.navigationItem setRightBarButtonItem:_autotypeButton animated:YES];
+    }];
+
+    return YES;
+}
+
+#pragma mark - Buttons
 
 - (void)updateButtons {
     _backButton.enabled = _webView.canGoBack;
@@ -157,7 +229,7 @@
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView {
     [self updateButtons];
-    self.title = [webView stringByEvaluatingJavaScriptFromString:@"document.title"];
+    _urlTextField.text = [webView.request.URL absoluteString];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
