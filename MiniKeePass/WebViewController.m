@@ -153,7 +153,7 @@
     self.navigationItem.rightBarButtonItem = nil;
 
     // Animate the size of the url text field
-    [UIView animateWithDuration:0.5 animations:^{
+    [UIView animateWithDuration:0.25 animations:^{
         _urlTextField.frame = frame;
     }];
 
@@ -161,7 +161,7 @@
 }
 
 - (BOOL)textFieldShouldEndEditing:(UITextField *)textField {
-    [UIView animateWithDuration:0.5 animations:^{
+    [UIView animateWithDuration:0.25 animations:^{
         // Restore the url text fields frame
         _urlTextField.frame = _originalUrlFrame;
     } completion:^(BOOL finished) {
