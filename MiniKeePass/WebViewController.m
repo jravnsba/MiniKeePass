@@ -61,6 +61,7 @@
     _webView = [[UIWebView alloc] init];
     _webView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
 	_webView.backgroundColor = [UIColor whiteColor];
+    _webView.scalesPageToFit = YES;
 	_webView.delegate = self;
     _webView.keyboardDisplayRequiresUserAction = NO;
 	[self.view addSubview:_webView];
