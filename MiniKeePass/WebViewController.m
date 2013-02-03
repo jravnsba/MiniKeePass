@@ -8,7 +8,9 @@
 
 #import "WebViewController.h"
 
-#define kUrlFieldHeight   30.0f
+#define kUrlFieldPortHeight 30.0f
+#define kUrlFieldLandHeight 24.0f
+#define UrlFieldHeight(orientation) (UIInterfaceOrientationIsPortrait(orientation) ? kUrlFieldPortHeight : kUrlFieldLandHeight)
 
 @interface WebViewController () <UIWebViewDelegate, UITextFieldDelegate> {
     UITextField *_urlTextField;
@@ -29,7 +31,8 @@
 
 - (void)viewDidLoad {
     // Create the URL text field
-    _urlTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, self.navigationController.navigationBar.bounds.size.width, kUrlFieldHeight)];
+    CGFloat height = UrlFieldHeight(self.interfaceOrientation);
+    _urlTextField = [[UITextField alloc] initWithFrame:CGRectMake(0, 0, self.navigationController.navigationBar.bounds.size.width, height)];
     _urlTextField.contentVerticalAlignment = UIViewContentModeCenter;
     _urlTextField.autoresizingMask = UIViewAutoresizingFlexibleWidth;
     _urlTextField.borderStyle = UITextBorderStyleRoundedRect;
@@ -117,6 +120,18 @@
     [_webView loadRequest:[NSURLRequest requestWithURL:url]];
 }
 
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+
+    // Stop the network activity indicator
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
+}
+
+- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
+    CGFloat height = UrlFieldHeight(self.interfaceOrientation);
+    _urlTextField.frame = CGRectMake(0, 0, self.navigationController.navigationBar.bounds.size.width, height);
+}
+
 - (void)dealloc {
     [_entry release];
     [_urlTextField release];
@@ -146,14 +161,15 @@
     _originalUrlFrame = _urlTextField.frame;
 
     // Compute a new frame size
-    CGRect frame = CGRectMake(0, 0, self.navigationController.navigationBar.bounds.size.width, kUrlFieldHeight);
+    CGFloat height = UrlFieldHeight(self.interfaceOrientation);
+    CGRect frame = CGRectMake(0, 0, self.navigationController.navigationBar.bounds.size.width, height);
 
     // Hide the buttons
-    self.navigationItem.hidesBackButton = YES;
-    self.navigationItem.rightBarButtonItem = nil;
+    [self.navigationItem setHidesBackButton:YES animated:YES];
+    [self.navigationItem setRightBarButtonItem:nil animated:YES];
 
     // Animate the size of the url text field
-    [UIView animateWithDuration:0.25 animations:^{
+    [UIView animateWithDuration:0.4 animations:^{
         _urlTextField.frame = frame;
     }];
 
@@ -161,13 +177,13 @@
 }
 
 - (BOOL)textFieldShouldEndEditing:(UITextField *)textField {
-    [UIView animateWithDuration:0.25 animations:^{
-        // Restore the url text fields frame
-        _urlTextField.frame = _originalUrlFrame;
-    } completion:^(BOOL finished) {
-        // Show the buttons
+    [UIView animateWithDuration:0.4 animations:^{
+        // Display the buttons
         [self.navigationItem setHidesBackButton:NO animated:YES];
         [self.navigationItem setRightBarButtonItem:_autotypeButton animated:YES];
+
+        // Restore the url text fields frame
+        _urlTextField.frame = _originalUrlFrame;
     }];
 
     return YES;
@@ -225,15 +241,24 @@
 
 - (void)webViewDidStartLoad:(UIWebView *)webView {
     [self updateButtons];
+
+    // Start the network activity indicator
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
 }
 
 - (void)webViewDidFinishLoad:(UIWebView *)webView {
     [self updateButtons];
     _urlTextField.text = [webView.request.URL absoluteString];
+
+    // Stop the network activity indicator
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
     [self updateButtons];
+
+    // Stop the network activity indicator
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 }
 
 @end
